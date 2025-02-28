@@ -4,23 +4,43 @@
 \alias{extract_values}
 \title{Extract Values from an Excel File Based on Row and Column Identifiers}
 \usage{
-extract_values(file, pattern_row = "_row", pattern_col = "_col")
+extract_values(
+  file,
+  pattern_row = ".*_row$",
+  pattern_col = ".*_col$",
+  row_identifiers = NULL,
+  col_identifiers = NULL,
+  clean_description = TRUE
+)
 }
 \arguments{
 \item{file}{Path to the Excel file.}
 
-\item{pattern_row}{A regex pattern to identify row labels (default: "_row$").}
+\item{pattern_row}{A regex pattern to identify row labels (default: ".*_row$").}
 
-\item{pattern_col}{A regex pattern to identify column labels (default: "_col$").}
+\item{pattern_col}{A regex pattern to identify column labels (default: ".*_col$").}
+
+\item{row_identifiers}{A character vector of row label identifiers (default: NULL).}
+
+\item{col_identifiers}{A character vector of column label identifiers (default: NULL).}
+
+\item{clean_description}{Logical. If TRUE, removes the identified suffix from the description (default: TRUE).}
 }
 \value{
 A tibble containing extracted values, including sheet name, row, column, and description.
 }
 \description{
 This function reads an Excel file and extracts structured data by identifying row and column labels
-using specific suffix patterns (e.g., "_row" for row identifiers and "_col" for column identifiers).
+using specific suffix patterns or by matching against a predefined list of identifiers.
 }
 \examples{
-# Extract values from an Excel file
+\dontrun{
+# Extract values using regex patterns
 dataset <- extract_values("data/example.xlsx")
+
+# Extract values using a predefined list of labels
+dataset <- extract_values("data/example.xlsx",
+                          row_identifiers = c("Total Assets", "Total Liabilities"),
+                          col_identifiers = c("Year 2023", "Year 2024"))
+}
 }
