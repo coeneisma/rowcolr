@@ -1,0 +1,46 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# rowcolr
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+The goal of `rowcolr` is to extract structured data from Excel files by identifying row and column labels using regex patterns or predefined identifiers. The package is designed to support easy extraction of data based on matching row and column labels, facilitating data wrangling and cleaning tasks from spreadsheet data.
+
+## Installation
+
+You can install the development version of `rowcolr` from GitHub with:
+
+``` r
+devtools::install_github("coeneisma/rowcolr")
+```
+
+## Usage
+
+The primary function of `rowcolr` is `extract_values()`, which allows you to extract structured data from Excel files based on row and column label patterns.
+
+### Example: Extracting Data from an Excel File
+
+``` r
+library(rowcolr)
+
+# Extract values from an Excel file using default row/column regex patterns
+dataset <- extract_values("path/to/your/excel_file.xlsx")
+head(dataset)
+```
+
+More informatie can be found in the [get started].
