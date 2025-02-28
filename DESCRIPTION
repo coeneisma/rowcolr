@@ -15,3 +15,7 @@ Imports:
     stringr,
     tidyr,
     tidyxl
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

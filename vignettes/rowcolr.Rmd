@@ -1,0 +1,55 @@
+---
+title: "rowcolr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{rowcolr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(rowcolr)
+```
+
+### Example: Extracting Data from an Excel File
+
+``` r
+library(rowcolr)
+
+# Extract values from an Excel file using default row/column regex patterns
+dataset <- extract_values("path/to/your/excel_file.xlsx")
+head(dataset)
+```
+
+### Example: Using Specific Row and Column Identifiers
+
+If you have predefined row or column labels, you can use them directly by providing a character vector.
+
+``` r
+# Extract values using predefined row and column identifiers
+dataset <- extract_values("path/to/your/excel_file.xlsx",
+                           row_identifiers = c("Total Assets", "Net Profit"),
+                           col_identifiers = c("2023", "2024"))
+head(dataset)
+```
+
+### Example: Cleaning Descriptions by Removing Suffix Patterns
+
+You can also clean the row and column labels before combining them into the description.
+
+``` r
+# Extract values with cleaned descriptions
+dataset <- extract_values("path/to/your/excel_file.xlsx", clean_description = TRUE)
+head(dataset)
+```
+
+## Conclusion
+
+The `rowcolr` package is a powerful tool for extracting structured data from Excel files based on customizable row and column patterns. It is designed to be flexible, allowing for both regex-based matching and predefined lists of identifiers.
