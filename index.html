@@ -53,6 +53,11 @@
 <!-- badges: end -->
 <p>The goal of <code>rowcolr</code> is to extract structured data from Excel files by identifying row and column labels using regex patterns or predefined identifiers. The package is designed to support easy extraction of data based on matching row and column labels, facilitating data wrangling and cleaning tasks from spreadsheet data.</p>
 <div class="section level2">
+<h2 id="origin">Origin<a class="anchor" aria-label="anchor" href="#origin"></a>
+</h2>
+<p>The development of <code>rowcolr</code> was driven by a specific use case: existing Excel files used as input forms by organizations in the arts and culture sector to provide information to the Dutch Ministry of Education, Culture, and Science (OCW). To minimize disruptions to the existing workflow, the forms were kept as similar as possible to their original format, while still allowing structured extraction of all relevant data from the Excel files.</p>
+</div>
+<div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the development version of <code>rowcolr</code> from GitHub with:</p>
@@ -72,8 +77,32 @@
 <span><span class="co"># Extract values from an Excel file using default row/column regex patterns</span></span>
 <span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="st">"path/to/your/excel_file.xlsx"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
-<p>More informatie can be found in the [get started].</p>
 </div>
+<div class="section level3">
+<h3 id="example-using-specific-row-and-column-identifiers">Example: Using Specific Row and Column Identifiers<a class="anchor" aria-label="anchor" href="#example-using-specific-row-and-column-identifiers"></a>
+</h3>
+<p>If you have predefined row or column labels, you can use them directly by providing a character vector.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract values using predefined row and column identifiers</span></span>
+<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="st">"path/to/your/excel_file.xlsx"</span>,</span>
+<span>                           row_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Total Assets"</span>, <span class="st">"Net Profit"</span><span class="op">)</span>,</span>
+<span>                           col_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2023"</span>, <span class="st">"2024"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-cleaning-descriptions-by-removing-suffix-patterns">Example: Cleaning Descriptions by Removing Suffix Patterns<a class="anchor" aria-label="anchor" href="#example-cleaning-descriptions-by-removing-suffix-patterns"></a>
+</h3>
+<p>You can also clean the row and column labels before combining them into the description.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract values with cleaned descriptions</span></span>
+<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="st">"path/to/your/excel_file.xlsx"</span>, clean_description <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
+</h2>
+<p>The <code>rowcolr</code> package is a powerful tool for extracting structured data from Excel files based on customizable row and column patterns. It is designed to be flexible, allowing for both regex-based matching and predefined lists of identifiers.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
