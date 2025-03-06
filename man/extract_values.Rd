@@ -30,6 +30,8 @@ extract_values(
 A tibble containing extracted values, including sheet name, row, column, and description.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 This function reads an Excel file and extracts structured data by identifying row and column labels
 using specific suffix patterns or by matching against a predefined list of identifiers.
 }
