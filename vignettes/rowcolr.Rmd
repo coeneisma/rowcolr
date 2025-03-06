@@ -30,7 +30,7 @@ library(rowcolr)
 
 ### Example: Extracting Data from an Excel File
 
-Values can be extracted from an Excel file using the default row and column regex patterns `.*_row$` and `.*_col$`:
+Values can be extracted from an Excel file using a regex patterns. The default patterns are `.*_row$` and `.*_col$`, which means the function looks for values that end with `_row` and `_col`:
 
 ```{r}
 # Extract values from an example Excel file
@@ -39,6 +39,18 @@ dataset <- extract_values(rowcolr_example("example.xlsx"))
 head(dataset |> 
        dplyr::select(-c(filename, sheet, row, col)))
 ```
+
+To search for all rows that contain `fixed assets` you can use the following code:
+
+```{r}
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          pattern_row = "fixed assets")
+
+head(dataset |> 
+       dplyr::select(-c(filename, sheet, row, col, description)))
+```
+
+Notice the use of the default pattern `.*_col$` for column labels.
 
 ### Example: Using Specific Row and Column Identifiers
 
