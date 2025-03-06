@@ -18,36 +18,65 @@ knitr::opts_chunk$set(
 library(rowcolr)
 ```
 
+
+## Usage
+
+The primary function of `rowcolr` is `extract_values()`, which allows you to extract structured data from Excel files based on row and column label patterns.
+
+The package can be loaded with:
+
+```{r}
+library(rowcolr)
+```
+
+
 ### Example: Extracting Data from an Excel File
 
-``` r
-library(rowcolr)
 
+```{r}
 # Extract values from an Excel file using default row/column regex patterns
-dataset <- extract_values("path/to/your/excel_file.xlsx")
-head(dataset)
+dataset <- extract_values(rowcolr_example("example.xlsx"))
+
+head(dataset |> 
+       dplyr::select(-c(filename, sheet, row, col)))
 ```
+
 
 ### Example: Using Specific Row and Column Identifiers
 
 If you have predefined row or column labels, you can use them directly by providing a character vector.
 
-``` r
-# Extract values using predefined row and column identifiers
-dataset <- extract_values("path/to/your/excel_file.xlsx",
-                           row_identifiers = c("Total Assets", "Net Profit"),
-                           col_identifiers = c("2023", "2024"))
-head(dataset)
+```{r}
+data("row_identifiers_example")
+row_identifiers_example
 ```
 
-### Example: Cleaning Descriptions by Removing Suffix Patterns
+```{r}
+data("col_identifiers_example")
+col_identifiers_example
+```
 
-You can also clean the row and column labels before combining them into the description.
+These vectors can be used with the `col_identifiers` and `row_identifiers` arguments:
 
-``` r
-# Extract values with cleaned descriptions
-dataset <- extract_values("path/to/your/excel_file.xlsx", clean_description = TRUE)
-head(dataset)
+```{r}
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          col_identifiers = col_identifiers_example,
+                          row_identifiers = row_identifiers_example)
+
+head(dataset |> 
+       dplyr::select(-c(filename, sheet, row, col)))
+```
+
+### Example: (not) Cleaning Descriptions by Removing Suffix Patterns
+
+By default, row and column labels are cleaned of their identified suffix before combining them into the description. To disable this use `clean_description = FALSE`
+
+```{r}
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          clean_description = FALSE)
+
+head(dataset |> 
+       dplyr::select(-c(filename, sheet, row, col)))
 ```
 
 ## Conclusion

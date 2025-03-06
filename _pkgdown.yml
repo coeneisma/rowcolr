@@ -2,3 +2,13 @@ url: https://coeneisma.github.io/rowcolr/
 template:
   bootstrap: 5
 
+reference:
+  - title: "Main function"
+    contents:
+    - extract_values
+  - title: "Other functions"
+    desc: "Functions to generate the examples"
+    contents:
+    - rowcolr_example
+    - col_identifiers_example
+    - row_identifiers_example
