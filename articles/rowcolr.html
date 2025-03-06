@@ -168,9 +168,9 @@ directly by providing a character vector.</p>
 <div class="section level3">
 <h3 id="example-controlling-description-cleaning">Example: Controlling Description Cleaning<a class="anchor" aria-label="anchor" href="#example-controlling-description-cleaning"></a>
 </h3>
-<p>By default, row and column labels are cleaned by removing suffix
-patterns before combining them into the description. To disable this,
-use <code>clean_description = FALSE</code>:</p>
+<p>By default, row and column labels are cleaned by removing row and
+column patterns before combining them into the description. To disable
+this, use <code>clean_description = FALSE</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="../reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>, </span>
 <span>                          clean_description <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
