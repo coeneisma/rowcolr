@@ -1,5 +1,7 @@
 #' Extract Values from an Excel File Based on Row and Column Identifiers
 #'
+#' @description `r lifecycle::badge('experimental')`
+#'
 #' This function reads an Excel file and extracts structured data by identifying row and column labels
 #' using specific suffix patterns or by matching against a predefined list of identifiers.
 #'
