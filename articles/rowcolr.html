@@ -82,8 +82,10 @@ extracted and stored.</p>
 <div class="section level3">
 <h3 id="example-extracting-data-from-an-excel-file">Example: Extracting Data from an Excel File<a class="anchor" aria-label="anchor" href="#example-extracting-data-from-an-excel-file"></a>
 </h3>
-<p>Values can be extracted from an Excel file using the default row and
-column regex patterns <code>.*_row$</code> and <code>.*_col$</code>:</p>
+<p>Values can be extracted from an Excel file using a regex patterns.
+The default patterns are <code>.*_row$</code> and <code>.*_col$</code>,
+which means the function looks for values that end with
+<code>_row</code> and <code>_col</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract values from an example Excel file</span></span>
 <span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="../reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span><span class="op">)</span></span>
@@ -100,13 +102,31 @@ column regex patterns <code>.*_row$</code> and <code>.*_col$</code>:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> stock_row             2025_col  stock_2025     numeric   <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>        <span style="text-decoration: underline;">25</span>000</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> receivables_row       2025_col  receivables_2… numeric   <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>        <span style="text-decoration: underline;">15</span>000</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: date &lt;dttm&gt;, character &lt;chr&gt;</span></span></span></code></pre></div>
+<p>To search for all rows that contain <code>fixed assets</code> you can
+use the following code:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="../reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>, </span>
+<span>                          pattern_row <span class="op">=</span> <span class="st">"fixed assets"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dataset</span> <span class="op">|&gt;</span> </span>
+<span>       <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">filename</span>, <span class="va">sheet</span>, <span class="va">row</span>, <span class="va">col</span>, <span class="va">description</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 8</span></span></span>
+<span><span class="co">#&gt;   row_label        col_label data_type error logical numeric date  </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Intangible fixe… 2025_col  numeric   <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">100</span>000 <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Tangible fixed … 2025_col  numeric   <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">200</span>000 <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Financial fixed… 2025_col  numeric   <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">150</span>000 <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Total fixed ass… 2025_col  numeric   <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>       <span style="text-decoration: underline;">450</span>000 <span style="color: #BB0000;">NA</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: character &lt;chr&gt;</span></span></span></code></pre></div>
+<p>Notice the use of the default pattern <code>.*_col$</code> for column
+labels.</p>
 </div>
 <div class="section level3">
 <h3 id="example-using-specific-row-and-column-identifiers">Example: Using Specific Row and Column Identifiers<a class="anchor" aria-label="anchor" href="#example-using-specific-row-and-column-identifiers"></a>
 </h3>
 <p>If you have predefined row or column labels, you can use them
 directly by providing a character vector.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"row_identifiers_example"</span><span class="op">)</span></span>
 <span><span class="va">row_identifiers_example</span></span>
 <span><span class="co">#&gt;  [1] "int_fixed_assets_row"            "tang_fixed_assets_row"          </span></span>
@@ -121,13 +141,13 @@ directly by providing a character vector.</p>
 <span><span class="co">#&gt; [19] "long_term_liabilities_row"       "total_long_term_liabilities_row"</span></span>
 <span><span class="co">#&gt; [21] "cur_liabilities_row"             "tot_cur_liabilities_row"        </span></span>
 <span><span class="co">#&gt; [23] "total_liabilities_row"</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"col_identifiers_example"</span><span class="op">)</span></span>
 <span><span class="va">col_identifiers_example</span></span>
 <span><span class="co">#&gt; [1] "2025_col"</span></span></code></pre></div>
 <p>These vectors can be used with the <code>col_identifiers</code> and
 <code>row_identifiers</code> arguments:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="../reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>, </span>
 <span>                          col_identifiers <span class="op">=</span> <span class="va">col_identifiers_example</span>,</span>
 <span>                          row_identifiers <span class="op">=</span> <span class="va">row_identifiers_example</span><span class="op">)</span></span>
@@ -151,7 +171,7 @@ directly by providing a character vector.</p>
 <p>By default, row and column labels are cleaned by removing suffix
 patterns before combining them into the description. To disable this,
 use <code>clean_description = FALSE</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="../reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>, </span>
 <span>                          clean_description <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
