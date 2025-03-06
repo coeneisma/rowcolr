@@ -11,6 +11,8 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+options(scipen=999)
 ```
 
 # rowcolr
@@ -37,38 +39,23 @@ devtools::install_github("coeneisma/rowcolr")
 
 The primary function of `rowcolr` is `extract_values()`, which allows you to extract structured data from Excel files based on row and column label patterns.
 
+The package can be loaded with:
+
+```{r}
+library(rowcolr)
+```
+
+
 ### Example: Extracting Data from an Excel File
 
-``` r
-library(rowcolr)
+Values can be extract from an Excel file using default row/column regex patterns `.*_row$` and .*_col$`:
 
-# Extract values from an Excel file using default row/column regex patterns
-dataset <- extract_values("path/to/your/excel_file.xlsx")
-head(dataset)
+```{r}
+# 
+dataset <- extract_values(rowcolr_example("example.xlsx"))
+
+head(dataset |> 
+       dplyr::select(-c(filename, sheet, row, col)))
 ```
 
-### Example: Using Specific Row and Column Identifiers
-
-If you have predefined row or column labels, you can use them directly by providing a character vector.
-
-``` r
-# Extract values using predefined row and column identifiers
-dataset <- extract_values("path/to/your/excel_file.xlsx",
-                           row_identifiers = c("Total Assets", "Net Profit"),
-                           col_identifiers = c("2023", "2024"))
-head(dataset)
-```
-
-### Example: Cleaning Descriptions by Removing Suffix Patterns
-
-You can also clean the row and column labels before combining them into the description.
-
-``` r
-# Extract values with cleaned descriptions
-dataset <- extract_values("path/to/your/excel_file.xlsx", clean_description = TRUE)
-head(dataset)
-```
-
-## Conclusion
-
-The `rowcolr` package is a powerful tool for extracting structured data from Excel files based on customizable row and column patterns. It is designed to be flexible, allowing for both regex-based matching and predefined lists of identifiers.
+More on the use of the package can be found in the vignette: `vignette("rowcolr")`.

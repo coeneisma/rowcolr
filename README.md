@@ -36,43 +36,34 @@ The primary function of `rowcolr` is `extract_values()`, which allows
 you to extract structured data from Excel files based on row and column
 label patterns.
 
-### Example: Extracting Data from an Excel File
+The package can be loaded with:
 
 ``` r
 library(rowcolr)
-
-# Extract values from an Excel file using default row/column regex patterns
-dataset <- extract_values("path/to/your/excel_file.xlsx")
-head(dataset)
 ```
 
-### Example: Using Specific Row and Column Identifiers
+### Example: Extracting Data from an Excel File
 
-If you have predefined row or column labels, you can use them directly
-by providing a character vector.
+Values can be extract from an Excel file using default row/column regex
+patterns `.*_row$` and .\*\_col\$\`:
 
 ``` r
-# Extract values using predefined row and column identifiers
-dataset <- extract_values("path/to/your/excel_file.xlsx",
-                           row_identifiers = c("Total Assets", "Net Profit"),
-                           col_identifiers = c("2023", "2024"))
-head(dataset)
+# 
+dataset <- extract_values(rowcolr_example("example.xlsx"))
+
+head(dataset |> 
+       dplyr::select(-c(filename, sheet, row, col)))
+#> # A tibble: 6 × 9
+#>   row_label             col_label description    data_type error logical numeric
+#>   <chr>                 <chr>     <chr>          <chr>     <chr> <lgl>     <dbl>
+#> 1 int_fixed_assets_row  2025_col  int_fixed_ass… numeric   <NA>  NA       100000
+#> 2 tang_fixed_assets_row 2025_col  tang_fixed_as… numeric   <NA>  NA       200000
+#> 3 fin_fixed_assets_row  2025_col  fin_fixed_ass… numeric   <NA>  NA       150000
+#> 4 tot_fixed_assets_row  2025_col  tot_fixed_ass… numeric   <NA>  NA       450000
+#> 5 stock_row             2025_col  stock_2025     numeric   <NA>  NA        25000
+#> 6 receivables_row       2025_col  receivables_2… numeric   <NA>  NA        15000
+#> # ℹ 2 more variables: date <dttm>, character <chr>
 ```
 
-### Example: Cleaning Descriptions by Removing Suffix Patterns
-
-You can also clean the row and column labels before combining them into
-the description.
-
-``` r
-# Extract values with cleaned descriptions
-dataset <- extract_values("path/to/your/excel_file.xlsx", clean_description = TRUE)
-head(dataset)
-```
-
-## Conclusion
-
-The `rowcolr` package is a powerful tool for extracting structured data
-from Excel files based on customizable row and column patterns. It is
-designed to be flexible, allowing for both regex-based matching and
-predefined lists of identifiers.
+More on the use of the package can be found in the vignette:
+`vignette("rowcolr")`.
