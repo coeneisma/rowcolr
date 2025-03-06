@@ -79,7 +79,7 @@ head(dataset |>
 
 ### Example: Controlling Description Cleaning
 
-By default, row and column labels are cleaned by removing suffix patterns before combining them into the description. To disable this, use `clean_description = FALSE`:
+By default, row and column labels are cleaned by removing row and column patterns before combining them into the description. To disable this, use `clean_description = FALSE`:
 
 ```{r}
 dataset <- extract_values(rowcolr_example("example.xlsx"), 
