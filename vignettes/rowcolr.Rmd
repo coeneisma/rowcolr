@@ -18,10 +18,9 @@ knitr::opts_chunk$set(
 library(rowcolr)
 ```
 
-
 ## Usage
 
-The primary function of `rowcolr` is `extract_values()`, which allows you to extract structured data from Excel files based on row and column label patterns.
+The primary function of `rowcolr` is `extract_values()`, which extracts structured data from Excel files by identifying row and column labels. The function works by drawing a horizontal line from a detected row label and a vertical line from a detected column label. The value at their intersection is extracted and stored.
 
 The package can be loaded with:
 
@@ -29,18 +28,17 @@ The package can be loaded with:
 library(rowcolr)
 ```
 
-
 ### Example: Extracting Data from an Excel File
 
+Values can be extracted from an Excel file using the default row and column regex patterns `.*_row$` and `.*_col$`:
 
 ```{r}
-# Extract values from an Excel file using default row/column regex patterns
+# Extract values from an example Excel file
 dataset <- extract_values(rowcolr_example("example.xlsx"))
 
 head(dataset |> 
        dplyr::select(-c(filename, sheet, row, col)))
 ```
-
 
 ### Example: Using Specific Row and Column Identifiers
 
@@ -67,9 +65,9 @@ head(dataset |>
        dplyr::select(-c(filename, sheet, row, col)))
 ```
 
-### Example: (not) Cleaning Descriptions by Removing Suffix Patterns
+### Example: Controlling Description Cleaning
 
-By default, row and column labels are cleaned of their identified suffix before combining them into the description. To disable this use `clean_description = FALSE`
+By default, row and column labels are cleaned by removing suffix patterns before combining them into the description. To disable this, use `clean_description = FALSE`:
 
 ```{r}
 dataset <- extract_values(rowcolr_example("example.xlsx"), 

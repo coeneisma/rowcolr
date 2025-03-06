@@ -4,13 +4,16 @@
 # rowcolr
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 The goal of `rowcolr` is to extract structured data from Excel files by
 identifying row and column labels using regex patterns or predefined
-identifiers. The package is designed to support easy extraction of data
-based on matching row and column labels, facilitating data wrangling and
-cleaning tasks from spreadsheet data.
+identifiers. The package is designed to facilitate easy extraction of
+data by locating values at the intersection of row and column labels,
+making data wrangling and cleaning more efficient.
 
 ## Origin
 
@@ -19,7 +22,7 @@ Excel files used as input forms by organizations in the arts and culture
 sector to provide information to the Dutch Ministry of Education,
 Culture, and Science (OCW). To minimize disruptions to the existing
 workflow, the forms were kept as similar as possible to their original
-format, while still allowing structured extraction of all relevant data
+format while still allowing structured extraction of all relevant data
 from the Excel files.
 
 ## Installation
@@ -33,8 +36,10 @@ devtools::install_github("coeneisma/rowcolr")
 ## Usage
 
 The primary function of `rowcolr` is `extract_values()`, which allows
-you to extract structured data from Excel files based on row and column
-label patterns.
+you to extract structured data from Excel files by identifying row and
+column labels. The function works by drawing a horizontal line from a
+detected row label and a vertical line from a detected column label. The
+value located at their intersection is extracted and stored.
 
 The package can be loaded with:
 
@@ -44,11 +49,11 @@ library(rowcolr)
 
 ### Example: Extracting Data from an Excel File
 
-Values can be extract from an Excel file using default row/column regex
-patterns `.*_row$` and .\*\_col\$\`:
+Values can be extracted from an Excel file using the default row and
+column regex patterns `.*_row$` and `.*_col$`:
 
 ``` r
-# 
+# Extract values from an example Excel file
 dataset <- extract_values(rowcolr_example("example.xlsx"))
 
 head(dataset |> 
@@ -65,5 +70,5 @@ head(dataset |>
 #> # ℹ 2 more variables: date <dttm>, character <chr>
 ```
 
-More on the use of the package can be found in the vignette:
+For more details on using the package, refer to the vignette:
 `vignette("rowcolr")`.
