@@ -15,6 +15,12 @@ identifiers. The package is designed to facilitate easy extraction of
 data by locating values at the intersection of row and column labels,
 making data wrangling and cleaning more efficient.
 
+`rowcolr` leverages the excellent `tidyxl` package to read data from
+Excel files, ensuring robust and reliable extraction of cell contents.
+The package is particularly useful for dealing with semi-structured data
+in Excel files, which can be difficult to process using existing
+packages.
+
 ## Origin
 
 The development of `rowcolr` was driven by a specific use case: existing

@@ -22,6 +22,8 @@ library(rowcolr)
 
 The primary function of `rowcolr` is `extract_values()`, which extracts structured data from Excel files by identifying row and column labels. The function works by drawing a horizontal line from a detected row label and a vertical line from a detected column label. The value at their intersection is extracted and stored.
 
+`rowcolr` leverages the excellent `tidyxl` package to read data from Excel files, ensuring robust and reliable extraction of cell contents. The package is particularly useful for dealing with semi-structured data in Excel files, which can be difficult to process using existing packages.
+
 The package can be loaded with:
 
 ```{r}
@@ -30,7 +32,7 @@ library(rowcolr)
 
 ### Example: Extracting Data from an Excel File
 
-Values can be extracted from an Excel file using a regex patterns. The default patterns are `.*_row$` and `.*_col$`, which means the function looks for values that end with `_row` and `_col`:
+Values can be extracted from an Excel file using the default row and column regex patterns `.*_row$` and `.*_col$`, which means the function looks for values that end with `_row` and `_col`:
 
 ```{r}
 # Extract values from an example Excel file
