@@ -76,14 +76,19 @@ files by identifying row and column labels. The function works by
 drawing a horizontal line from a detected row label and a vertical line
 from a detected column label. The value at their intersection is
 extracted and stored.</p>
+<p><code>rowcolr</code> leverages the excellent <code>tidyxl</code>
+package to read data from Excel files, ensuring robust and reliable
+extraction of cell contents. The package is particularly useful for
+dealing with semi-structured data in Excel files, which can be difficult
+to process using existing packages.</p>
 <p>The package can be loaded with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://coeneisma.github.io/rowcolr/">rowcolr</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="example-extracting-data-from-an-excel-file">Example: Extracting Data from an Excel File<a class="anchor" aria-label="anchor" href="#example-extracting-data-from-an-excel-file"></a>
 </h3>
-<p>Values can be extracted from an Excel file using a regex patterns.
-The default patterns are <code>.*_row$</code> and <code>.*_col$</code>,
+<p>Values can be extracted from an Excel file using the default row and
+column regex patterns <code>.*_row$</code> and <code>.*_col$</code>,
 which means the function looks for values that end with
 <code>_row</code> and <code>_col</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
