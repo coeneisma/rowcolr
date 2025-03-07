@@ -20,6 +20,8 @@ options(scipen=999)
 <!-- badges: start -->
 
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN status](https://www.r-pkg.org/badges/version/rowcolr)](https://CRAN.R-project.org/package=rowcolr)
+[![R-CMD-check](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of `rowcolr` is to extract structured data from Excel files by identifying row and column labels using regex patterns or predefined identifiers. The package is designed to facilitate easy extraction of data by locating values at the intersection of row and column labels, making data wrangling and cleaning more efficient.
