@@ -1,9 +1,11 @@
 #' Extract Values from an Excel File Based on Row and Column Identifiers
 #'
-#' @description This function reads an Excel file and extracts structured data
-#' by identifying row and column labels. It ensures that each row label is only
-#' matched with the closest column label to its right and only with column
-#' labels from the nearest preceding row that contains column headers.
+#' @description `r lifecycle::badge('experimental')`
+#'
+#'   This function reads an Excel file and extracts structured data by
+#'   identifying row and column labels. It ensures that each row label is only
+#'   matched with the closest column label to its right and only with column
+#'   labels from the nearest preceding row that contains column headers.
 #'
 #' @param file Path to the Excel file.
 #' @param pattern_row A regex pattern to identify row labels (default:

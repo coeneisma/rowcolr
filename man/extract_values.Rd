@@ -36,8 +36,10 @@ A tibble containing extracted values, including sheet name, row,
 column, and description.
 }
 \description{
-This function reads an Excel file and extracts structured data
-by identifying row and column labels. It ensures that each row label is only
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
+This function reads an Excel file and extracts structured data by
+identifying row and column labels. It ensures that each row label is only
 matched with the closest column label to its right and only with column
 labels from the nearest preceding row that contains column headers.
 }
