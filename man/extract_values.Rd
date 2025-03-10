@@ -16,33 +16,39 @@ extract_values(
 \arguments{
 \item{file}{Path to the Excel file.}
 
-\item{pattern_row}{A regex pattern to identify row labels (default: ".*_row$").}
+\item{pattern_row}{A regex pattern to identify row labels (default:
+".*_row$").}
 
-\item{pattern_col}{A regex pattern to identify column labels (default: ".*_col$").}
+\item{pattern_col}{A regex pattern to identify column labels (default:
+".*_col$").}
 
-\item{row_identifiers}{A character vector of row label identifiers (default: NULL).}
+\item{row_identifiers}{A character vector of row label identifiers (default:
+NULL).}
 
-\item{col_identifiers}{A character vector of column label identifiers (default: NULL).}
+\item{col_identifiers}{A character vector of column label identifiers
+(default: NULL).}
 
-\item{clean_description}{Logical. If TRUE, removes the identified suffix from the description (default: TRUE).}
+\item{clean_description}{Logical. If TRUE, removes text matching
+\code{pattern_row} and \code{pattern_col} from row and column labels (default: TRUE).}
 }
 \value{
-A tibble containing extracted values, including sheet name, row, column, and description.
+A tibble containing extracted values, including sheet name, row,
+column, and description.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-This function reads an Excel file and extracts structured data by identifying row and column labels
-using specific suffix patterns or by matching against a predefined list of identifiers.
+This function reads an Excel file and extracts structured data by
+identifying row and column labels. It ensures that each row label is only
+matched with the closest column label to its right and only with column
+labels from the nearest preceding row that contains column headers.
 }
 \examples{
-\dontrun{
 # Extract values using regex patterns
-dataset <- extract_values("data/example.xlsx")
+dataset <- extract_values(rowcolr_example("example.xlsx"))
 
 # Extract values using a predefined list of labels
-dataset <- extract_values("data/example.xlsx",
+dataset <- extract_values(rowcolr_example("example.xlsx"),
                           row_identifiers = c("Total Assets", "Total Liabilities"),
                           col_identifiers = c("Year 2023", "Year 2024"))
-}
 }
