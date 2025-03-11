@@ -7,15 +7,19 @@
 #'   matched with the closest column label to its right and only with column
 #'   labels from the nearest preceding row that contains column headers.
 #'
+#'   You can use **both regex patterns and explicit identifiers together**.
+#'   - If `row_identifiers` and/or `col_identifiers` are provided, they take **priority** over `pattern_row` and `pattern_col`.
+#'   - If **both** explicit identifiers and regex patterns are provided, the function will **first** match on identifiers. Any additional matches from regex patterns will be included.
+#'
 #' @param file Path to the Excel file.
 #' @param pattern_row A regex pattern to identify row labels (default:
-#'   ".*_row$").
+#'   ".*_row$"). **Used only if `row_identifiers` does not fully capture all row labels**.
 #' @param pattern_col A regex pattern to identify column labels (default:
-#'   ".*_col$").
-#' @param row_identifiers A character vector of row label identifiers (default:
-#'   NULL).
-#' @param col_identifiers A character vector of column label identifiers
-#'   (default: NULL).
+#'   ".*_col$"). **Used only if `col_identifiers` does not fully capture all column labels**.
+#' @param row_identifiers A character vector of row label identifiers. If
+#'   provided, takes precedence over `pattern_row`, but **does not disable it**.
+#' @param col_identifiers A character vector of column label identifiers. If
+#'   provided, takes precedence over `pattern_col`, but **does not disable it**.
 #' @param clean_description Logical. If TRUE, removes text matching
 #'   `pattern_row` and `pattern_col` from row and column labels (default: TRUE).
 #' @return A tibble containing extracted values, including sheet name, row,
@@ -24,11 +28,19 @@
 #' @examples
 #' # Extract values using regex patterns
 #' dataset <- extract_values(rowcolr_example("example.xlsx"))
+#' dataset
 #'
-#' # Extract values using a predefined list of labels
+#' # Extract values using a predefined list of labels (ignoring regex)
 #' dataset <- extract_values(rowcolr_example("example.xlsx"),
-#'                           row_identifiers = c("Total Assets", "Total Liabilities"),
-#'                           col_identifiers = c("Year 2023", "Year 2024"))
+#'                           row_identifiers = c("Total assets (4+9)", "Total equity (10+11+12)"),
+#'                           col_identifiers = c("2025_col"))
+#' dataset
+#'
+#' # Extract values using BOTH identifiers and regex
+#' dataset <- extract_values(rowcolr_example("example.xlsx"),
+#'                           row_identifiers = c("Total assets (4+9)"),
+#'                           pattern_row = ".*_row$")
+#' dataset
 extract_values <- function(file,
                            pattern_row = ".*_row$", pattern_col = ".*_col$",
                            row_identifiers = NULL, col_identifiers = NULL,
@@ -43,24 +55,24 @@ extract_values <- function(file,
   raw_data <- tidyxl::xlsx_cells(file) |>
     dplyr::mutate(filename = base::basename(file))
 
-  # Identify row and column labels based on regex patterns or predefined lists
+  # Identify row and column labels based on explicit identifiers OR regex patterns
   row_col_data <- raw_data |>
     dplyr::mutate(
-      is_row_label = if (!is.null(row_identifiers)) character %in% row_identifiers else stringr::str_detect(character, pattern_row),
-      is_col_label = if (!is.null(col_identifiers)) character %in% col_identifiers else stringr::str_detect(character, pattern_col)
+      is_row_label = character %in% row_identifiers | stringr::str_detect(character, pattern_row),
+      is_col_label = character %in% col_identifiers | stringr::str_detect(character, pattern_col)
     ) |>
     dplyr::select(sheet, row, col, character, is_row_label, is_col_label, dplyr::everything())
 
   # Extract row labels
   rows <- row_col_data |>
     dplyr::filter(is_row_label) |>
-    dplyr::select(sheet_rows = sheet, row, row_col = col, row_label = character)  # Rename col to row_col
+    dplyr::select(sheet_rows = sheet, row, row_col = col, row_label = character)
 
   # Extract column labels, including their row positions
   cols <- row_col_data |>
     dplyr::filter(is_col_label) |>
     dplyr::select(sheet_cols = sheet, col, row, col_label = character) |>
-    dplyr::rename(col_row = row)  # Rename row to col_row (row of the column label)
+    dplyr::rename(col_row = row)
 
   # Utility function to clean regex patterns
   clean_regex <- function(pattern) {
@@ -86,13 +98,10 @@ extract_values <- function(file,
   rows <- rows |>
     dplyr::rowwise() |>
     dplyr::mutate(
-      # closest_col = ifelse(length(cols$col[cols$col > row$col]) > 0,
-      #                      min(cols$col[cols$col > row$col]),
-      #                      NA)
-      closest_col = min(cols$col[cols$sheet_cols == sheet_rows &
-                                   cols$col_row == closest_col_row &
-                                   cols$col > row_col],
-                        na.rm = TRUE)
+      closest_col = suppressWarnings(min(cols$col[cols$sheet_cols == sheet_rows &
+                                                    cols$col_row == closest_col_row &
+                                                    cols$col > row_col],
+                                         na.rm = TRUE))
     ) |>
     dplyr::ungroup()
 

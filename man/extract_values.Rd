@@ -17,16 +17,16 @@ extract_values(
 \item{file}{Path to the Excel file.}
 
 \item{pattern_row}{A regex pattern to identify row labels (default:
-".*_row$").}
+".*_row$"). \strong{Used only if \code{row_identifiers} does not fully capture all row labels}.}
 
 \item{pattern_col}{A regex pattern to identify column labels (default:
-".*_col$").}
+".*_col$"). \strong{Used only if \code{col_identifiers} does not fully capture all column labels}.}
 
-\item{row_identifiers}{A character vector of row label identifiers (default:
-NULL).}
+\item{row_identifiers}{A character vector of row label identifiers. If
+provided, takes precedence over \code{pattern_row}, but \strong{does not disable it}.}
 
-\item{col_identifiers}{A character vector of column label identifiers
-(default: NULL).}
+\item{col_identifiers}{A character vector of column label identifiers. If
+provided, takes precedence over \code{pattern_col}, but \strong{does not disable it}.}
 
 \item{clean_description}{Logical. If TRUE, removes text matching
 \code{pattern_row} and \code{pattern_col} from row and column labels (default: TRUE).}
@@ -42,13 +42,27 @@ This function reads an Excel file and extracts structured data by
 identifying row and column labels. It ensures that each row label is only
 matched with the closest column label to its right and only with column
 labels from the nearest preceding row that contains column headers.
+
+You can use \strong{both regex patterns and explicit identifiers together}.
+\itemize{
+\item If \code{row_identifiers} and/or \code{col_identifiers} are provided, they take \strong{priority} over \code{pattern_row} and \code{pattern_col}.
+\item If \strong{both} explicit identifiers and regex patterns are provided, the function will \strong{first} match on identifiers. Any additional matches from regex patterns will be included.
+}
 }
 \examples{
 # Extract values using regex patterns
 dataset <- extract_values(rowcolr_example("example.xlsx"))
+dataset
 
-# Extract values using a predefined list of labels
+# Extract values using a predefined list of labels (ignoring regex)
 dataset <- extract_values(rowcolr_example("example.xlsx"),
-                          row_identifiers = c("Total Assets", "Total Liabilities"),
-                          col_identifiers = c("Year 2023", "Year 2024"))
+                          row_identifiers = c("Total assets (4+9)", "Total equity (10+11+12)"),
+                          col_identifiers = c("2025_col"))
+dataset
+
+# Extract values using BOTH identifiers and regex
+dataset <- extract_values(rowcolr_example("example.xlsx"),
+                          row_identifiers = c("Total assets (4+9)"),
+                          pattern_row = ".*_row$")
+dataset
 }
