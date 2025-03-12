@@ -3,11 +3,21 @@
 This function reads an Excel file and extracts structured data by
 identifying row and column labels. It ensures that each row label is only
 matched with the closest column label to its right and only with column
-labels from the nearest preceding row that contains column headers."><meta property="og:description" content="
+labels from the nearest preceding row that contains column headers.
+You can use both regex patterns and explicit identifiers together.
+If row_identifiers and/or col_identifiers are provided, they take priority over row_pattern and col_pattern.
+If both explicit identifiers and regex patterns are provided, the function will first match on identifiers. Any additional matches from regex patterns will be included.
+
+"><meta property="og:description" content="
 This function reads an Excel file and extracts structured data by
 identifying row and column labels. It ensures that each row label is only
 matched with the closest column label to its right and only with column
-labels from the nearest preceding row that contains column headers."><meta property="og:image" content="https://coeneisma.github.io/rowcolr/logo.svg"></head><body>
+labels from the nearest preceding row that contains column headers.
+You can use both regex patterns and explicit identifiers together.
+If row_identifiers and/or col_identifiers are provided, they take priority over row_pattern and col_pattern.
+If both explicit identifiers and regex patterns are provided, the function will first match on identifiers. Any additional matches from regex patterns will be included.
+
+"><meta property="og:image" content="https://coeneisma.github.io/rowcolr/logo.svg"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -47,14 +57,16 @@ labels from the nearest preceding row that contains column headers."><meta prope
 identifying row and column labels. It ensures that each row label is only
 matched with the closest column label to its right and only with column
 labels from the nearest preceding row that contains column headers.</p>
-    </div>
+<p>You can use <strong>both regex patterns and explicit identifiers together</strong>.</p><ul><li><p>If <code>row_identifiers</code> and/or <code>col_identifiers</code> are provided, they take <strong>priority</strong> over <code>row_pattern</code> and <code>col_pattern</code>.</p></li>
+<li><p>If <strong>both</strong> explicit identifiers and regex patterns are provided, the function will <strong>first</strong> match on identifiers. Any additional matches from regex patterns will be included.</p></li>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">extract_values</span><span class="op">(</span></span>
 <span>  <span class="va">file</span>,</span>
-<span>  pattern_row <span class="op">=</span> <span class="st">".*_row$"</span>,</span>
-<span>  pattern_col <span class="op">=</span> <span class="st">".*_col$"</span>,</span>
+<span>  row_pattern <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  col_pattern <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  row_identifiers <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  col_identifiers <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  clean_description <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -69,29 +81,27 @@ labels from the nearest preceding row that contains column headers.</p>
 <dd><p>Path to the Excel file.</p></dd>
 
 
-<dt id="arg-pattern-row">pattern_row<a class="anchor" aria-label="anchor" href="#arg-pattern-row"></a></dt>
-<dd><p>A regex pattern to identify row labels (default:
-".*_row$").</p></dd>
+<dt id="arg-row-pattern">row_pattern<a class="anchor" aria-label="anchor" href="#arg-row-pattern"></a></dt>
+<dd><p>A regex pattern to identify row labels. <strong>Used only if <code>row_identifiers</code> does not fully capture all row labels</strong>. (Example: <code>".*_row$"</code>).</p></dd>
 
 
-<dt id="arg-pattern-col">pattern_col<a class="anchor" aria-label="anchor" href="#arg-pattern-col"></a></dt>
-<dd><p>A regex pattern to identify column labels (default:
-".*_col$").</p></dd>
+<dt id="arg-col-pattern">col_pattern<a class="anchor" aria-label="anchor" href="#arg-col-pattern"></a></dt>
+<dd><p>A regex pattern to identify column labels. <strong>Used only if <code>col_identifiers</code> does not fully capture all column labels</strong>. (Example: <code>".*_col$"</code>).</p></dd>
 
 
 <dt id="arg-row-identifiers">row_identifiers<a class="anchor" aria-label="anchor" href="#arg-row-identifiers"></a></dt>
-<dd><p>A character vector of row label identifiers (default:
-NULL).</p></dd>
+<dd><p>A character vector of row label identifiers. If
+provided, takes precedence over <code>row_pattern</code>, but <strong>does not disable it</strong>.</p></dd>
 
 
 <dt id="arg-col-identifiers">col_identifiers<a class="anchor" aria-label="anchor" href="#arg-col-identifiers"></a></dt>
-<dd><p>A character vector of column label identifiers
-(default: NULL).</p></dd>
+<dd><p>A character vector of column label identifiers. If
+provided, takes precedence over <code>col_pattern</code>, but <strong>does not disable it</strong>.</p></dd>
 
 
 <dt id="arg-clean-description">clean_description<a class="anchor" aria-label="anchor" href="#arg-clean-description"></a></dt>
 <dd><p>Logical. If TRUE, removes text matching
-<code>pattern_row</code> and <code>pattern_col</code> from row and column labels (default: TRUE).</p></dd>
+<code>row_pattern</code> and <code>col_pattern</code> from row and column labels (default: TRUE).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -103,16 +113,55 @@ column, and description.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Extract values using regex patterns</span></span></span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">extract_values</span><span class="op">(</span><span class="fu"><a href="rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">extract_values</span><span class="op">(</span><span class="fu"><a href="rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>, row_pattern <span class="op">=</span> <span class="st">".*_row$"</span>, col_pattern <span class="op">=</span> <span class="st">".*_col$"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 28 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    filename    sheet   row   col row_label col_label description data_type error</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> example.xl… Bala…     2     4 name_row  value_col _           character <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> example.xl… Bala…     3     4 year_row  value_col _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> example.xl… Bala…     4     4 kvk_row   value_col _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> example.xl… Bala…     7    10 test1_row 2026_col  _           character <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> example.xl… Bala…     8    10 tes2_row  2026_col  _           character <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> example.xl… Bala…     9     4 int_fixe… 2025_col  _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> example.xl… Bala…    10     4 tang_fix… 2025_col  _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> example.xl… Bala…    11     4 fin_fixe… 2025_col  _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> example.xl… Bala…    13     4 tot_fixe… 2025_col  _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> example.xl… Bala…    16     4 stock_row 2025_col  _           numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 18 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: logical &lt;lgl&gt;, numeric &lt;dbl&gt;, date &lt;dttm&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   character &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Extract values using a predefined list of labels</span></span></span>
+<span class="r-in"><span><span class="co"># Extract values using a predefined list of labels (ignoring regex)</span></span></span>
 <span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">extract_values</span><span class="op">(</span><span class="fu"><a href="rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                          row_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Total Assets"</span>, <span class="st">"Total Liabilities"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                          col_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Year 2023"</span>, <span class="st">"Year 2024"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There was 1 warning in `dplyr::mutate()`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `closest_col = min(...)`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning in `min()`:</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> no non-missing arguments to min; returning Inf</span>
+<span class="r-in"><span>                          row_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Total assets (4+9)"</span>, <span class="st">"Total equity (10+11+12)"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          col_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2025_col"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   filename     sheet   row   col row_label col_label description data_type error</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> example.xlsx Bala…    23     4 Total as… 2025_col  Total asse… numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> example.xlsx Bala…    31     4 Total eq… 2025_col  Total equi… numeric   <span style="color: #BB0000;">NA</span>   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: logical &lt;lgl&gt;, numeric &lt;dbl&gt;, date &lt;dttm&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   character &lt;chr&gt;</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Extract values using BOTH identifiers and regex</span></span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu">extract_values</span><span class="op">(</span><span class="fu"><a href="rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          row_identifiers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Total assets (4+9)"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          row_pattern <span class="op">=</span> <span class="st">".*_row$"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There were 29 warnings in `dplyr::mutate()`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> The first warning was:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `closest_col_row = purrr::map_dbl(row,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   ~max(cols$col_row[cols$col_row &lt; .x], na.rm = TRUE))`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `sheet_rows = "Balance"`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning in `max()`:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> no non-missing arguments to max; returning -Inf</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Run `dplyr::last_dplyr_warnings()` to see the 28 remaining warnings.</span>
+<span class="r-in"><span><span class="va">dataset</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 0 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 13 variables: filename &lt;chr&gt;, sheet &lt;chr&gt;, row &lt;int&gt;, col &lt;int&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   row_label &lt;chr&gt;, col_label &lt;chr&gt;, description &lt;chr&gt;, data_type &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   error &lt;chr&gt;, logical &lt;lgl&gt;, numeric &lt;dbl&gt;, date &lt;dttm&gt;, character &lt;chr&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

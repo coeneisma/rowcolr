@@ -61,8 +61,9 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of <code>rowcolr</code> is to extract structured data from Excel files by identifying row and column labels using regex patterns or predefined identifiers. The package is designed to facilitate easy extraction of data by locating values at the intersection of row and column labels, making data wrangling and cleaning more efficient.</p>
-<p><code>rowcolr</code> leverages the excellent <code>tidyxl</code> package to read data from Excel files, ensuring robust and reliable extraction of cell contents. The package is particularly useful for dealing with semi-structured data in Excel files, which can be difficult to process using existing packages.</p>
+<!-- badges: end -->
+<p>The goal of <code>rowcolr</code> is to extract structured data from semi-structured Excel files by identifying row and column labels using predefined identifiers or regex patterns. Processing such data can be challenging with existing packages. <code>rowcolr</code> simplifies this process by efficiently locating values at the intersection of row and column labels, making data wrangling and cleaning more seamless.</p>
+<p>Built on the powerful <code>tidyxl</code> package, <code>rowcolr</code> ensures robust and reliable extraction of cell contents from Excel files.</p>
 <div class="section level2">
 <h2 id="origin">Origin<a class="anchor" aria-label="anchor" href="#origin"></a>
 </h2>
@@ -85,22 +86,23 @@
 <div class="section level3">
 <h3 id="example-extracting-data-from-an-excel-file">Example: Extracting Data from an Excel File<a class="anchor" aria-label="anchor" href="#example-extracting-data-from-an-excel-file"></a>
 </h3>
-<p>Values can be extracted from an Excel file using the default row and column regex patterns <code>.*_row$</code> and <code>.*_col$</code>:</p>
+<p>Values can be extracted from an Excel file using row and column identifiers or regex patterns:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Extract values from an example Excel file</span></span>
-<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Extract values from an example Excel file with regex patterns</span></span>
+<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_values.html">extract_values</a></span><span class="op">(</span><span class="fu"><a href="reference/rowcolr_example.html">rowcolr_example</a></span><span class="op">(</span><span class="st">"example.xlsx"</span><span class="op">)</span>, </span>
+<span>                          row_pattern <span class="op">=</span> <span class="st">".*_row$"</span>, </span>
+<span>                          col_pattern <span class="op">=</span> <span class="st">".*_col$"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dataset</span> <span class="op">|&gt;</span> </span>
-<span>       <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">filename</span>, <span class="va">sheet</span>, <span class="va">row</span>, <span class="va">col</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dataset</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">filename</span>, <span class="va">sheet</span>, <span class="va">row</span>, <span class="va">col</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 6 × 9</span></span>
-<span><span class="co">#&gt;   row_label             col_label description    data_type error logical numeric</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;                 &lt;chr&gt;     &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt; &lt;lgl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 int_fixed_assets_row  2025_col  int_fixed_ass… numeric   &lt;NA&gt;  NA       100000</span></span>
-<span><span class="co">#&gt; 2 tang_fixed_assets_row 2025_col  tang_fixed_as… numeric   &lt;NA&gt;  NA       200000</span></span>
-<span><span class="co">#&gt; 3 fin_fixed_assets_row  2025_col  fin_fixed_ass… numeric   &lt;NA&gt;  NA       150000</span></span>
-<span><span class="co">#&gt; 4 tot_fixed_assets_row  2025_col  tot_fixed_ass… numeric   &lt;NA&gt;  NA       450000</span></span>
-<span><span class="co">#&gt; 5 stock_row             2025_col  stock_2025     numeric   &lt;NA&gt;  NA        25000</span></span>
-<span><span class="co">#&gt; 6 receivables_row       2025_col  receivables_2… numeric   &lt;NA&gt;  NA        15000</span></span>
+<span><span class="co">#&gt;   row_label            col_label description data_type error logical  numeric</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt; &lt;lgl&gt;      &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 name_row             value_col _           character &lt;NA&gt;  NA            NA</span></span>
+<span><span class="co">#&gt; 2 year_row             value_col _           numeric   &lt;NA&gt;  NA          2025</span></span>
+<span><span class="co">#&gt; 3 kvk_row              value_col _           numeric   &lt;NA&gt;  NA      12345678</span></span>
+<span><span class="co">#&gt; 4 test1_row            2026_col  _           character &lt;NA&gt;  NA            NA</span></span>
+<span><span class="co">#&gt; 5 tes2_row             2026_col  _           character &lt;NA&gt;  NA            NA</span></span>
+<span><span class="co">#&gt; 6 int_fixed_assets_row 2025_col  _           numeric   &lt;NA&gt;  NA        100000</span></span>
 <span><span class="co">#&gt; # ℹ 2 more variables: date &lt;dttm&gt;, character &lt;chr&gt;</span></span></code></pre></div>
 <p>For more details on using the package, refer to the vignette: <code><a href="articles/rowcolr.html">vignette("rowcolr")</a></code>.</p>
 </div>
