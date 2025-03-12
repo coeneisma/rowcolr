@@ -10,19 +10,18 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![CRAN
 status](https://www.r-pkg.org/badges/version/rowcolr)](https://CRAN.R-project.org/package=rowcolr)
 [![R-CMD-check](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
-The goal of `rowcolr` is to extract structured data from Excel files by
-identifying row and column labels using regex patterns or predefined
-identifiers. The package is designed to facilitate easy extraction of
-data by locating values at the intersection of row and column labels,
-making data wrangling and cleaning more efficient.
+The goal of `rowcolr` is to extract structured data from semi-structured
+Excel files by identifying row and column labels using predefined
+identifiers or regex patterns. Processing such data can be challenging
+with existing packages. `rowcolr` simplifies this process by efficiently
+locating values at the intersection of row and column labels, making
+data wrangling and cleaning more seamless.
 
-`rowcolr` leverages the excellent `tidyxl` package to read data from
-Excel files, ensuring robust and reliable extraction of cell contents.
-The package is particularly useful for dealing with semi-structured data
-in Excel files, which can be difficult to process using existing
-packages.
+Built on the powerful `tidyxl` package, `rowcolr` ensures robust and
+reliable extraction of cell contents from Excel files.
 
 ## Origin
 
@@ -58,24 +57,25 @@ library(rowcolr)
 
 ### Example: Extracting Data from an Excel File
 
-Values can be extracted from an Excel file using the default row and
-column regex patterns `.*_row$` and `.*_col$`:
+Values can be extracted from an Excel file using row and column
+identifiers or regex patterns:
 
 ``` r
-# Extract values from an example Excel file
-dataset <- extract_values(rowcolr_example("example.xlsx"))
+# Extract values from an example Excel file with regex patterns
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          row_pattern = ".*_row$", 
+                          col_pattern = ".*_col$")
 
-head(dataset |> 
-       dplyr::select(-c(filename, sheet, row, col)))
+head(dataset |> dplyr::select(-c(filename, sheet, row, col)))
 #> # A tibble: 6 × 9
-#>   row_label             col_label description    data_type error logical numeric
-#>   <chr>                 <chr>     <chr>          <chr>     <chr> <lgl>     <dbl>
-#> 1 int_fixed_assets_row  2025_col  int_fixed_ass… numeric   <NA>  NA       100000
-#> 2 tang_fixed_assets_row 2025_col  tang_fixed_as… numeric   <NA>  NA       200000
-#> 3 fin_fixed_assets_row  2025_col  fin_fixed_ass… numeric   <NA>  NA       150000
-#> 4 tot_fixed_assets_row  2025_col  tot_fixed_ass… numeric   <NA>  NA       450000
-#> 5 stock_row             2025_col  stock_2025     numeric   <NA>  NA        25000
-#> 6 receivables_row       2025_col  receivables_2… numeric   <NA>  NA        15000
+#>   row_label            col_label description data_type error logical  numeric
+#>   <chr>                <chr>     <chr>       <chr>     <chr> <lgl>      <dbl>
+#> 1 name_row             value_col _           character <NA>  NA            NA
+#> 2 year_row             value_col _           numeric   <NA>  NA          2025
+#> 3 kvk_row              value_col _           numeric   <NA>  NA      12345678
+#> 4 test1_row            2026_col  _           character <NA>  NA            NA
+#> 5 tes2_row             2026_col  _           character <NA>  NA            NA
+#> 6 int_fixed_assets_row 2025_col  _           numeric   <NA>  NA        100000
 #> # ℹ 2 more variables: date <dttm>, character <chr>
 ```
 
