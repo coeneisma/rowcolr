@@ -14,81 +14,90 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Usage
+
+The only function of `rowcolr` is `extract_values()`, which extracts structured data from Excel files by identifying row and column labels. The function works by drawing a horizontal line from a detected row label and a vertical line from a detected column label. The value at their intersection is extracted and stored.
+
+The function provides **flexibility** by allowing both **explicit identifiers** and **regex patterns**:
+
+-   If explicit identifiers (`row_identifiers` and `col_identifiers`) are provided, they take priority over regex.
+
+-   If regex patterns (`row_pattern`, `col_pattern`) are provided, they act as a fallback when explicit identifiers are not exhaustive.
+
+The package can be loaded with:
+
 ```{r setup}
 library(rowcolr)
 ```
 
-## Usage
+### Extracting Data from an Excel File using specific row and column identifiers
 
-The primary function of `rowcolr` is `extract_values()`, which extracts structured data from Excel files by identifying row and column labels. The function works by drawing a horizontal line from a detected row label and a vertical line from a detected column label. The value at their intersection is extracted and stored.
-
-`rowcolr` leverages the excellent `tidyxl` package to read data from Excel files, ensuring robust and reliable extraction of cell contents. The package is particularly useful for dealing with semi-structured data in Excel files, which can be difficult to process using existing packages.
-
-The package can be loaded with:
+If you have predefined row or column labels, you can use them directly by providing character vectors to the `col_identifiers` and `row_identifiers` arguments:
 
 ```{r}
-library(rowcolr)
+row_identifiers_example <- c("int_fixed_assets_row", "tang_fixed_assets_row",
+                             "fin_fixed_assets_row", "tot_fixed_assets_row")
+col_identifiers_example <- "2025_col"
+
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          row_identifiers = row_identifiers_example,
+                          col_identifiers = col_identifiers_example)
+
+head(dataset |> dplyr::select(-c(filename, sheet, row, col)))
+
 ```
 
-### Example: Extracting Data from an Excel File
+### Extracting Data from an Excel File using regex patterns
 
-Values can be extracted from an Excel file using the default row and column regex patterns `.*_row$` and `.*_col$`, which means the function looks for values that end with `_row` and `_col`:
+Values can be extracted from an Excel file using regex patterns:
 
 ```{r}
-# Extract values from an example Excel file
+# Extract values using regex patterns
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          row_pattern = ".*_row$", 
+                          col_pattern = ".*_col$")
+
+head(dataset |> dplyr::select(-c(filename, sheet, row, col)))
+
+```
+
+### Extracting Data from an Excel File using both identifiers and regex patterns 
+
+You can combine the use of predefined row or column labels and regex patterns:
+
+```{r}
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          row_identifiers = row_identifiers_example,
+                          col_identifiers = col_identifiers_example,
+                          row_pattern = ".*_row$", 
+                          col_pattern = ".*_col$")
+```
+
+
+
+### No regex pattern or identifiers
+
+If **no identifiers or regex are provided**, `extract_values()` will return an **error**:
+
+``` r
 dataset <- extract_values(rowcolr_example("example.xlsx"))
 
-head(dataset |> 
-       dplyr::select(-c(filename, sheet, row, col)))
+#> Error: No identifiers or regex patterns provided. Please specify 
+#> `row_identifiers`, `col_identifiers`, `row_pattern`, or `col_pattern`.
 ```
 
-To search for all rows that contain `fixed assets` you can use the following code:
-
-```{r}
-dataset <- extract_values(rowcolr_example("example.xlsx"), 
-                          pattern_row = "fixed assets")
-
-head(dataset |> 
-       dplyr::select(-c(filename, sheet, row, col, description)))
-```
-
-Notice the use of the default pattern `.*_col$` for column labels.
-
-### Example: Using Specific Row and Column Identifiers
-
-If you have predefined row or column labels, you can use them directly by providing a character vector.
-
-```{r}
-data("row_identifiers_example")
-row_identifiers_example
-```
-
-```{r}
-data("col_identifiers_example")
-col_identifiers_example
-```
-
-These vectors can be used with the `col_identifiers` and `row_identifiers` arguments:
-
-```{r}
-dataset <- extract_values(rowcolr_example("example.xlsx"), 
-                          col_identifiers = col_identifiers_example,
-                          row_identifiers = row_identifiers_example)
-
-head(dataset |> 
-       dplyr::select(-c(filename, sheet, row, col)))
-```
-
-### Example: Controlling Description Cleaning
+### Controlling Description Cleaning
 
 By default, row and column labels are cleaned by removing row and column patterns before combining them into the description. To disable this, use `clean_description = FALSE`:
 
 ```{r}
 dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          row_pattern = ".*_row$", 
+                          col_pattern = ".*_col$",
                           clean_description = FALSE)
 
 head(dataset |> 
-       dplyr::select(-c(filename, sheet, row, col)))
+       dplyr::select(c(row_label, col_label, description)))
 ```
 
 ## Conclusion

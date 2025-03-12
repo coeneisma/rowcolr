@@ -19,14 +19,13 @@ options(scipen=999)
 
 <!-- badges: start -->
 
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN status](https://www.r-pkg.org/badges/version/rowcolr)](https://CRAN.R-project.org/package=rowcolr)
-[![R-CMD-check](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental) [![CRAN status](https://www.r-pkg.org/badges/version/rowcolr)](https://CRAN.R-project.org/package=rowcolr) [![R-CMD-check](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coeneisma/rowcolr/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
-The goal of `rowcolr` is to extract structured data from Excel files by identifying row and column labels using regex patterns or predefined identifiers. The package is designed to facilitate easy extraction of data by locating values at the intersection of row and column labels, making data wrangling and cleaning more efficient.
+The goal of `rowcolr` is to extract structured data from semi-structured Excel files by identifying row and column labels using predefined identifiers or regex patterns. Processing such data can be challenging with existing packages. `rowcolr` simplifies this process by efficiently locating values at the intersection of row and column labels, making data wrangling and cleaning more seamless.
 
-`rowcolr` leverages the excellent `tidyxl` package to read data from Excel files, ensuring robust and reliable extraction of cell contents. The package is particularly useful for dealing with semi-structured data in Excel files, which can be difficult to process using existing packages.
+Built on the powerful `tidyxl` package, `rowcolr` ensures robust and reliable extraction of cell contents from Excel files.
 
 ## Origin
 
@@ -52,14 +51,15 @@ library(rowcolr)
 
 ### Example: Extracting Data from an Excel File
 
-Values can be extracted from an Excel file using the default row and column regex patterns `.*_row$` and `.*_col$`:
+Values can be extracted from an Excel file using row and column identifiers or regex patterns:
 
 ```{r}
-# Extract values from an example Excel file
-dataset <- extract_values(rowcolr_example("example.xlsx"))
+# Extract values from an example Excel file with regex patterns
+dataset <- extract_values(rowcolr_example("example.xlsx"), 
+                          row_pattern = ".*_row$", 
+                          col_pattern = ".*_col$")
 
-head(dataset |> 
-       dplyr::select(-c(filename, sheet, row, col)))
+head(dataset |> dplyr::select(-c(filename, sheet, row, col)))
 ```
 
-For more details on using the package, refer to the vignette: `vignette("rowcolr")`. 
+For more details on using the package, refer to the vignette: `vignette("rowcolr")`.

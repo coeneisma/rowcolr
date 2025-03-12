@@ -6,8 +6,8 @@
 \usage{
 extract_values(
   file,
-  pattern_row = ".*_row$",
-  pattern_col = ".*_col$",
+  row_pattern = NULL,
+  col_pattern = NULL,
   row_identifiers = NULL,
   col_identifiers = NULL,
   clean_description = TRUE
@@ -16,20 +16,18 @@ extract_values(
 \arguments{
 \item{file}{Path to the Excel file.}
 
-\item{pattern_row}{A regex pattern to identify row labels (default:
-".*_row$"). \strong{Used only if \code{row_identifiers} does not fully capture all row labels}.}
+\item{row_pattern}{A regex pattern to identify row labels. \strong{Used only if \code{row_identifiers} does not fully capture all row labels}. (Example: \code{".*_row$"}).}
 
-\item{pattern_col}{A regex pattern to identify column labels (default:
-".*_col$"). \strong{Used only if \code{col_identifiers} does not fully capture all column labels}.}
+\item{col_pattern}{A regex pattern to identify column labels. \strong{Used only if \code{col_identifiers} does not fully capture all column labels}. (Example: \code{".*_col$"}).}
 
 \item{row_identifiers}{A character vector of row label identifiers. If
-provided, takes precedence over \code{pattern_row}, but \strong{does not disable it}.}
+provided, takes precedence over \code{row_pattern}, but \strong{does not disable it}.}
 
 \item{col_identifiers}{A character vector of column label identifiers. If
-provided, takes precedence over \code{pattern_col}, but \strong{does not disable it}.}
+provided, takes precedence over \code{col_pattern}, but \strong{does not disable it}.}
 
 \item{clean_description}{Logical. If TRUE, removes text matching
-\code{pattern_row} and \code{pattern_col} from row and column labels (default: TRUE).}
+\code{row_pattern} and \code{col_pattern} from row and column labels (default: TRUE).}
 }
 \value{
 A tibble containing extracted values, including sheet name, row,
@@ -45,13 +43,13 @@ labels from the nearest preceding row that contains column headers.
 
 You can use \strong{both regex patterns and explicit identifiers together}.
 \itemize{
-\item If \code{row_identifiers} and/or \code{col_identifiers} are provided, they take \strong{priority} over \code{pattern_row} and \code{pattern_col}.
+\item If \code{row_identifiers} and/or \code{col_identifiers} are provided, they take \strong{priority} over \code{row_pattern} and \code{col_pattern}.
 \item If \strong{both} explicit identifiers and regex patterns are provided, the function will \strong{first} match on identifiers. Any additional matches from regex patterns will be included.
 }
 }
 \examples{
 # Extract values using regex patterns
-dataset <- extract_values(rowcolr_example("example.xlsx"))
+dataset <- extract_values(rowcolr_example("example.xlsx"), row_pattern = ".*_row$", col_pattern = ".*_col$")
 dataset
 
 # Extract values using a predefined list of labels (ignoring regex)
@@ -63,6 +61,6 @@ dataset
 # Extract values using BOTH identifiers and regex
 dataset <- extract_values(rowcolr_example("example.xlsx"),
                           row_identifiers = c("Total assets (4+9)"),
-                          pattern_row = ".*_row$")
+                          row_pattern = ".*_row$")
 dataset
 }
