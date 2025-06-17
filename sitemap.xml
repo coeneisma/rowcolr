@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://coeneisma.github.io/rowcolr/404.html</loc></url>
+<url><loc>https://coeneisma.github.io/rowcolr/CLAUDE.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/LICENSE-text.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/LICENSE.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/articles/index.html</loc></url>
@@ -7,7 +8,9 @@
 <url><loc>https://coeneisma.github.io/rowcolr/authors.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/index.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/news/index.html</loc></url>
+<url><loc>https://coeneisma.github.io/rowcolr/reference/apply_fuzzy_matching.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/reference/extract_values.html</loc></url>
+<url><loc>https://coeneisma.github.io/rowcolr/reference/find_fuzzy_matches.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/reference/index.html</loc></url>
 <url><loc>https://coeneisma.github.io/rowcolr/reference/rowcolr_example.html</loc></url>
 </urlset>
