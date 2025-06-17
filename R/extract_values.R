@@ -21,8 +21,23 @@
 #' @param col_pattern A regex pattern to identify column labels. **Used only if `col_identifiers` does not fully capture all column labels**. (Example: `".*_col$"`).
 #' @param clean_description Logical. If TRUE, removes text matching
 #'   `row_pattern` and `col_pattern` from row and column labels (default: TRUE).
-#' @return A tibble containing extracted values, including sheet name, row,
-#'   column, and description.
+#' @param fuzzy_threshold Numeric between 0 and 1. If set, enables fuzzy matching
+#'   for identifiers. 0 = exact match required, 1 = any match accepted.
+#'   Recommended: 0.8 (default: NULL, disabled).
+#' @param fuzzy_method Character. Method for fuzzy matching from stringdist
+#'   package: "osa", "lv", "dl", "jaccard", "jw" (default: "jw" for
+#'   Jaro-Winkler).
+#' @return A tibble containing extracted values with the following columns:
+#'   - filename: Name of the source Excel file
+#'   - sheet: Sheet name where the value was found
+#'   - row, col: Row and column coordinates of the value
+#'   - row_label, col_label: The matched row and column labels
+#'   - description: Combined row and column label
+#'   - data_type: Excel data type of the cell
+#'   - error, logical, numeric, date, character: Cell values by type
+#'   - fuzzy_threshold: The fuzzy matching threshold used (if any)
+#'   - row_similarity: Similarity score for row label match (0-1)
+#'   - col_similarity: Similarity score for column label match (0-1)
 #' @export
 #' @examples
 #' # Extract values using regex patterns
@@ -40,10 +55,18 @@
 #'                           row_identifiers = c("Total assets (4+9)"),
 #'                           row_pattern = ".*_row$")
 #' dataset
+#'
+#' # Extract values with fuzzy matching enabled
+#' dataset <- extract_values(rowcolr_example("example.xlsx"),
+#'                           row_identifiers = c("Total assets", "Total equity"),
+#'                           col_identifiers = c("2025"),
+#'                           fuzzy_threshold = 0.8)
+#' dataset
 extract_values <- function(file,
                            row_pattern = NULL, col_pattern = NULL,
                            row_identifiers = NULL, col_identifiers = NULL,
-                           clean_description = TRUE) {
+                           clean_description = TRUE,
+                           fuzzy_threshold = NULL, fuzzy_method = "jw") {
 
   if (missing(file)) {
     cli::cli_abort("The `file` argument is required. Please provide the path to an Excel file.")
@@ -57,6 +80,16 @@ extract_values <- function(file,
     cli::cli_abort("No identifiers or regex patterns provided. Please specify `row_identifiers`, `col_identifiers`, `row_pattern`, or `col_pattern`.")
   }
 
+  # Validate fuzzy matching parameters
+  if (!is.null(fuzzy_threshold)) {
+    if (!is.numeric(fuzzy_threshold) || fuzzy_threshold < 0 || fuzzy_threshold > 1) {
+      cli::cli_abort("`fuzzy_threshold` must be a numeric value between 0 and 1.")
+    }
+    if (!fuzzy_method %in% c("osa", "lv", "dl", "jaccard", "jw")) {
+      cli::cli_abort("`fuzzy_method` must be one of: 'osa', 'lv', 'dl', 'jaccard', 'jw'.")
+    }
+  }
+
   # Read the raw data from the Excel file using tidyxl::xlsx_cells
   raw_data <- tidyxl::xlsx_cells(file) |>
     dplyr::mutate(filename = base::basename(file))
@@ -64,8 +97,47 @@ extract_values <- function(file,
   # Identify row and column labels based on exact identifiers and regex patterns
   row_col_data <- raw_data |>
     dplyr::mutate(
+      # Exact matches first
       is_row_label = if (!is.null(row_identifiers)) character %in% row_identifiers else FALSE,
       is_col_label = if (!is.null(col_identifiers)) character %in% col_identifiers else FALSE,
+      
+      # Initialize similarity scores
+      row_similarity = 0,
+      col_similarity = 0,
+      
+      # Add fuzzy matches if enabled and get similarity scores
+      row_fuzzy_match = if (!is.null(row_identifiers) && !is.null(fuzzy_threshold)) {
+        apply_fuzzy_matching(character, row_identifiers, fuzzy_threshold, fuzzy_method)
+      } else {
+        FALSE
+      },
+      
+      col_fuzzy_match = if (!is.null(col_identifiers) && !is.null(fuzzy_threshold)) {
+        apply_fuzzy_matching(character, col_identifiers, fuzzy_threshold, fuzzy_method)
+      } else {
+        FALSE
+      },
+      
+      # Get similarity scores for fuzzy matches
+      row_similarity = if (!is.null(row_identifiers) && !is.null(fuzzy_threshold)) {
+        apply_fuzzy_matching(character, row_identifiers, fuzzy_threshold, fuzzy_method, return_scores = TRUE)
+      } else {
+        row_similarity
+      },
+      
+      col_similarity = if (!is.null(col_identifiers) && !is.null(fuzzy_threshold)) {
+        apply_fuzzy_matching(character, col_identifiers, fuzzy_threshold, fuzzy_method, return_scores = TRUE)
+      } else {
+        col_similarity
+      },
+      
+      # Combine exact and fuzzy matches
+      is_row_label = is_row_label | row_fuzzy_match,
+      is_col_label = is_col_label | col_fuzzy_match,
+      
+      # Set similarity to 1 for exact matches
+      row_similarity = ifelse(!is.null(row_identifiers) & character %in% row_identifiers, 1, row_similarity),
+      col_similarity = ifelse(!is.null(col_identifiers) & character %in% col_identifiers, 1, col_similarity),
 
       # Add regex matches if the patterns exist
       is_row_label = if (!is.null(row_pattern)) {
@@ -84,12 +156,25 @@ extract_values <- function(file,
   # Extract rows and columns that match the identifiers
   rows <- row_col_data |>
     dplyr::filter(is_row_label) |>
-    dplyr::select(sheet_rows = sheet, row, row_col = col, row_label = character)
+    dplyr::select(sheet_rows = sheet, row, row_col = col, row_label = character, row_similarity)
 
   cols <- row_col_data |>
     dplyr::filter(is_col_label) |>
-    dplyr::select(sheet_cols = sheet, col, row, col_label = character) |>
+    dplyr::select(sheet_cols = sheet, col, row, col_label = character, col_similarity) |>
     dplyr::rename(col_row = row)
+  
+  # Provide feedback about fuzzy matching if enabled
+  if (!is.null(fuzzy_threshold) && (!is.null(row_identifiers) || !is.null(col_identifiers))) {
+    n_row_matches <- nrow(rows)
+    n_col_matches <- nrow(cols)
+    
+    if (n_row_matches > 0 || n_col_matches > 0) {
+      cli::cli_inform(c(
+        "i" = "Fuzzy matching enabled with threshold {fuzzy_threshold}",
+        "i" = "Found {n_row_matches} row label{?s} and {n_col_matches} column label{?s}"
+      ))
+    }
+  }
 
   # For each row, identify the closest column label to its right from the preceding row
   rows <- rows |>
@@ -116,11 +201,12 @@ extract_values <- function(file,
                   col_row < row,
                   col_row == closest_col_row,
                   col == closest_col) |>
-    dplyr::select(sheet = sheet_cols, row, col, row_label, col_label) |>
+    dplyr::select(sheet = sheet_cols, row, col, row_label, col_label, row_similarity, col_similarity) |>
     dplyr::mutate(
       row_label_clean = if (clean_description & !is.null(row_pattern)) stringr::str_remove(row_label, row_pattern) else row_label,
       col_label_clean = if (clean_description & !is.null(col_pattern)) stringr::str_remove(col_label, col_pattern) else col_label,
-      description = base::paste0(row_label_clean, "_", col_label_clean)
+      description = base::paste0(row_label_clean, "_", col_label_clean),
+      fuzzy_threshold = fuzzy_threshold
     )
 
   # Join the extracted combinations with the original raw data and return the final dataset
@@ -130,9 +216,24 @@ extract_values <- function(file,
         dplyr::select(sheet, row, col, data_type, error, logical, numeric, date, character),
       by = c("sheet", "row", "col")
     ) |>
-    dplyr::mutate(filename = base::basename(file)) |>
-    dplyr::select(filename, sheet, row, col, row_label, col_label, description,
-                  data_type, error, logical, numeric, date, character)
+    dplyr::mutate(filename = base::basename(file))
+  
+  # Select columns based on whether fuzzy matching was used
+  if (!is.null(fuzzy_threshold)) {
+    dataset <- dataset |>
+      dplyr::select(filename, sheet, row, col, row_label, col_label, description,
+                    data_type, error, logical, numeric, date, character,
+                    fuzzy_threshold, row_similarity, col_similarity)
+  } else {
+    dataset <- dataset |>
+      dplyr::select(filename, sheet, row, col, row_label, col_label, description,
+                    data_type, error, logical, numeric, date, character)
+  }
+
+  # Warn if no data was extracted
+  if (nrow(dataset) == 0) {
+    cli::cli_warn("No data extracted. Check your identifiers/patterns.")
+  }
 
   return(dataset)
 }
@@ -141,4 +242,5 @@ utils::globalVariables(c("sheet", "is_row_label", "is_col_label", "sheet_cols",
                          "sheet_rows", "row_label", "col_label", "row_label_clean",
                          "col_label_clean", "data_type", "error", "filename",
                          "description", "col_row", "closest_col_row", "closest_col",
-                         "row_col", "col_identifiers_example", "row_identifiers_example"))
+                         "row_col", "row_similarity", "col_similarity", "row_fuzzy_match",
+                         "col_fuzzy_match", "fuzzy_threshold"))

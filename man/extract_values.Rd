@@ -10,7 +10,9 @@ extract_values(
   col_pattern = NULL,
   row_identifiers = NULL,
   col_identifiers = NULL,
-  clean_description = TRUE
+  clean_description = TRUE,
+  fuzzy_threshold = NULL,
+  fuzzy_method = "jw"
 )
 }
 \arguments{
@@ -28,10 +30,29 @@ provided, takes precedence over \code{col_pattern}, but \strong{does not disable
 
 \item{clean_description}{Logical. If TRUE, removes text matching
 \code{row_pattern} and \code{col_pattern} from row and column labels (default: TRUE).}
+
+\item{fuzzy_threshold}{Numeric between 0 and 1. If set, enables fuzzy matching
+for identifiers. 0 = exact match required, 1 = any match accepted.
+Recommended: 0.8 (default: NULL, disabled).}
+
+\item{fuzzy_method}{Character. Method for fuzzy matching from stringdist
+package: "osa", "lv", "dl", "jaccard", "jw" (default: "jw" for
+Jaro-Winkler).}
 }
 \value{
-A tibble containing extracted values, including sheet name, row,
-column, and description.
+A tibble containing extracted values with the following columns:
+\itemize{
+\item filename: Name of the source Excel file
+\item sheet: Sheet name where the value was found
+\item row, col: Row and column coordinates of the value
+\item row_label, col_label: The matched row and column labels
+\item description: Combined row and column label
+\item data_type: Excel data type of the cell
+\item error, logical, numeric, date, character: Cell values by type
+\item fuzzy_threshold: The fuzzy matching threshold used (if any)
+\item row_similarity: Similarity score for row label match (0-1)
+\item col_similarity: Similarity score for column label match (0-1)
+}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -62,5 +83,12 @@ dataset
 dataset <- extract_values(rowcolr_example("example.xlsx"),
                           row_identifiers = c("Total assets (4+9)"),
                           row_pattern = ".*_row$")
+dataset
+
+# Extract values with fuzzy matching enabled
+dataset <- extract_values(rowcolr_example("example.xlsx"),
+                          row_identifiers = c("Total assets", "Total equity"),
+                          col_identifiers = c("2025"),
+                          fuzzy_threshold = 0.8)
 dataset
 }
