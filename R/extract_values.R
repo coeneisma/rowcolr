@@ -27,6 +27,8 @@
 #' @param fuzzy_method Character. Method for fuzzy matching from stringdist
 #'   package: "osa", "lv", "dl", "jaccard", "jw" (default: "jw" for
 #'   Jaro-Winkler).
+#' @param sheets Character vector of sheet names or numeric indices to process.
+#'   NULL processes all sheets (default: NULL).
 #' @return A tibble containing extracted values with the following columns:
 #'   - filename: Name of the source Excel file
 #'   - sheet: Sheet name where the value was found
@@ -62,11 +64,18 @@
 #'                           col_identifiers = c("2025"),
 #'                           fuzzy_threshold = 0.8)
 #' dataset
+#'
+#' # Extract values from specific sheets only
+#' dataset <- extract_values(rowcolr_example("example.xlsx"),
+#'                           row_pattern = ".*_row$", col_pattern = ".*_col$",
+#'                           sheets = c("Balance"))
+#' dataset
 extract_values <- function(file,
                            row_pattern = NULL, col_pattern = NULL,
                            row_identifiers = NULL, col_identifiers = NULL,
                            clean_description = TRUE,
-                           fuzzy_threshold = NULL, fuzzy_method = "jw") {
+                           fuzzy_threshold = NULL, fuzzy_method = "jw",
+                           sheets = NULL) {
 
   if (missing(file)) {
     cli::cli_abort("The `file` argument is required. Please provide the path to an Excel file.")
@@ -90,9 +99,42 @@ extract_values <- function(file,
     }
   }
 
+  # Validate and process sheet selection
+  if (!is.null(sheets)) {
+    available_sheets <- tidyxl::xlsx_sheet_names(file)
+    
+    if (is.numeric(sheets)) {
+      # Convert numeric indices to sheet names
+      if (any(sheets < 1 | sheets > length(available_sheets))) {
+        cli::cli_abort("Sheet indices must be between 1 and {length(available_sheets)}.")
+      }
+      sheets <- available_sheets[sheets]
+    } else if (is.character(sheets)) {
+      # Validate sheet names exist
+      missing_sheets <- setdiff(sheets, available_sheets)
+      if (length(missing_sheets) > 0) {
+        cli::cli_abort(c(
+          "x" = "Sheet{cli::qty(length(missing_sheets))}{?s} {.val {missing_sheets}} not found.",
+          "i" = "Available sheets: {.val {available_sheets}}."
+        ))
+      }
+    } else {
+      cli::cli_abort("`sheets` must be a character vector of sheet names or numeric vector of indices.")
+    }
+  }
+
   # Read the raw data from the Excel file using tidyxl::xlsx_cells
   raw_data <- tidyxl::xlsx_cells(file) |>
     dplyr::mutate(filename = base::basename(file))
+  
+  # Filter sheets if specified
+  if (!is.null(sheets)) {
+    raw_data <- raw_data |>
+      dplyr::filter(sheet %in% sheets)
+    
+    # Inform user about sheet filtering
+    cli::cli_inform("Processing {length(sheets)} sheet{?s}: {.val {sheets}}")
+  }
 
   # Identify row and column labels based on exact identifiers and regex patterns
   row_col_data <- raw_data |>

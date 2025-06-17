@@ -12,7 +12,8 @@ extract_values(
   col_identifiers = NULL,
   clean_description = TRUE,
   fuzzy_threshold = NULL,
-  fuzzy_method = "jw"
+  fuzzy_method = "jw",
+  sheets = NULL
 )
 }
 \arguments{
@@ -38,6 +39,9 @@ Recommended: 0.8 (default: NULL, disabled).}
 \item{fuzzy_method}{Character. Method for fuzzy matching from stringdist
 package: "osa", "lv", "dl", "jaccard", "jw" (default: "jw" for
 Jaro-Winkler).}
+
+\item{sheets}{Character vector of sheet names or numeric indices to process.
+NULL processes all sheets (default: NULL).}
 }
 \value{
 A tibble containing extracted values with the following columns:
@@ -90,5 +94,11 @@ dataset <- extract_values(rowcolr_example("example.xlsx"),
                           row_identifiers = c("Total assets", "Total equity"),
                           col_identifiers = c("2025"),
                           fuzzy_threshold = 0.8)
+dataset
+
+# Extract values from specific sheets only
+dataset <- extract_values(rowcolr_example("example.xlsx"),
+                          row_pattern = ".*_row$", col_pattern = ".*_col$",
+                          sheets = c("Balance"))
 dataset
 }
